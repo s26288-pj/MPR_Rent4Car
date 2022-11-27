@@ -18,7 +18,7 @@ public class ClientRepository {
         clientList.add(client);
     }
 
-    public Optional<Client> findCientById(int id) {
+    public Optional<Client> findClientById(int id) {
         return clientList.stream().filter(it -> it.getId() == id).findFirst();
     }
 

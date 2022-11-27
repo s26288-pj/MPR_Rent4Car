@@ -25,4 +25,8 @@ public class CarRepository {
     public void removeAll() {
         carList = new ArrayList<>();
     }
+
+    public List<Car> findAll() {
+        return carList;
+    }
 }

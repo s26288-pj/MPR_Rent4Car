@@ -12,9 +12,12 @@ import pl.pjatk.rent4car.exception.ValidationException;
 import pl.pjatk.rent4car.model.Car;
 import pl.pjatk.rent4car.model.CarClass;
 import pl.pjatk.rent4car.model.Client;
+import pl.pjatk.rent4car.model.Reservation;
 import pl.pjatk.rent4car.repository.CarRepository;
 import pl.pjatk.rent4car.repository.ClientRepository;
+import pl.pjatk.rent4car.repository.RentRepository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -25,12 +28,13 @@ class RentalServiceTest {
     private static RentalService rentalService;
     private static CarRepository carRepository;
     private static ClientRepository clientRepository;
+    private static RentRepository rentRepository;
 
     @BeforeAll
     public static void setup() {
         carRepository = new CarRepository();
         clientRepository = new ClientRepository();
-        rentalService = new RentalService(carRepository, clientRepository);
+        rentalService = new RentalService(carRepository, clientRepository, rentRepository);
     }
 
     @AfterEach
@@ -47,7 +51,8 @@ class RentalServiceTest {
                 "308",
                 "4325GH21SAW543GTE",
                 CarClass.STANDARD,
-                false
+                false,
+                125
         );
 
         assertDoesNotThrow(() -> rentalService.addNewCar(car));
@@ -67,7 +72,8 @@ class RentalServiceTest {
                 "308",
                 "4325GH21SAW543GTE",
                 CarClass.STANDARD,
-                false
+                false,
+                125
         );
 
         carRepository.addCar(car);
@@ -90,11 +96,11 @@ class RentalServiceTest {
 
     private static Stream<Arguments> provideCarsWithEmptyVin() {
         return Stream.of(
-                Arguments.of(new Car(1,"Peugeot","308","",CarClass.STANDARD,false
+                Arguments.of(new Car(1,"Peugeot","308","",CarClass.STANDARD,false,125
                 )),
-                Arguments.of(new Car(2,"Audi","A4",null,CarClass.STANDARD,false
+                Arguments.of(new Car(2,"Audi","A4",null,CarClass.STANDARD,false,125
                 )),
-                Arguments.of(new Car(3,"BMW","E36","   ",CarClass.PREMIUM,false))
+                Arguments.of(new Car(3,"BMW","E36","   ",CarClass.PREMIUM,false,125))
         );
     }
 
@@ -114,16 +120,22 @@ class RentalServiceTest {
     @Test
     public void shouldBeAbleToRentACar() {
         Client client = new Client(1,"Marek","Zawisza","Banino",null);
-        Car car = new Car(1,"Volvo","V13","GHDAS2350GSDF3",CarClass.STANDARD,false);
+        Car car = new Car(1,"Volvo","V13","GHDAS2350GSDF3",CarClass.STANDARD,false,125);
+        LocalDate startDate = LocalDate.of(2022,11,21);
+        LocalDate endDate = LocalDate.of(2022,11,23);
+        Reservation reservation = new Reservation(1,1,startDate,endDate);
 
-        assertDoesNotThrow(() -> rentalService.rentCar(car,client));
+        assertDoesNotThrow(() -> rentalService.rentCar(reservation));
     }
 
     @Test
     public void shouldNotBeAbleToRentACar() {
         Client client = new Client(1,"Marek","Zawisza","Banino",null);
-        Car car = new Car(1,"Volvo","V13","GHDAS2350GSDF3",CarClass.STANDARD,true);
+        Car car = new Car(1,"Volvo","V13","GHDAS2350GSDF3",CarClass.STANDARD,true,125);
+        LocalDate startDate = LocalDate.of(2022,11,21);
+        LocalDate endDate = LocalDate.of(2022,11,23);
+        Reservation reservation = new Reservation(1,1,startDate,endDate);
 
-        assertThrows(RentException.class,() -> rentalService.rentCar(car,client),"Could not rent a car.");
+        assertThrows(RentException.class,() -> rentalService.rentCar(reservation),"Could not rent a car.");
     }
 }
